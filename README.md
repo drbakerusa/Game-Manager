@@ -3,4 +3,27 @@ F95 Game Manager is a simple and fast text-based libary manager for your [F95zon
 
 ![game details screen](images/v0.1.1/game-details.png)
 
+## Table of Contents
+* [Getting Started](#getting-started)
+    * [Installation](#installation)
+* [Application Configuration](#application-configuration)
+* [Library Management](#library-management)
+* [Game Management](#game-management)
+* [Data Management](#data-management)
+
+## Getting Started
+
+Getting started is as simple as downloading the latest release, expanding the archive, and making a few configuration choices.
+
+### Installation
+1. Download the [latest release](/releases/latest).
+
+## Application Configuration
+
+## Library Management
+
+## Game Management
+
+## Data Management
+
 https://simple-jsoneditor.com/
