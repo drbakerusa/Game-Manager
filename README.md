@@ -17,7 +17,11 @@ F95 Game Manager is a simple and fast text-based library manager for your [F95zo
 * [Application Configuration](#application-configuration)
     * [The Settings File](#the-settings-file)
     * [Configuration Options](#configuration-options)
+    * [Refreshing Metadata](#refreshing-metadata)
 * [Library Management](#library-management)
+    * [Adding a New Game](#adding-a-new-game)
+    * [Check for Updates](#check-for-updates)
+    * [Library Views](#library-views)
 * [Game Management](#game-management)
     * [Managing Game Updates](#managing-game-updates)
 * [Data Management](#data-management)
@@ -65,17 +69,74 @@ To edit the file, open it in any text/code editor.  If the entire file appears o
 The table below outlines all of the options in the settings file and what the do in the application.
 
 | Setting Name | Default Value | What it Does |
-| ------ | --- | ----------|
+| --- | --- | --- |
 | F95Username | *blank* | Username used when Game Manager authenticates to F95zone (described [above](#initial-configuration)) |
 | F95Password | *blank* | Password used when Game Manager authenticates to F95zone (described [above](#initial-configuration)) |
 | DefaultPageSize | 15 | On pages where lists are dynamic (a list of games for example), this controls how many items are on a page. If you have issues with content extending out of the console or you have too much empty space, try changing this value |
 | AutomaticallyCheckForGameUpdates | false | Controls whether newly added games are check for updates automatically when the application is launched. Read more about this in the [Managing Game Updates](#managing-game-updates) section below.
 
+### Refreshing Metadata
+
+Game Manager maintains a local cache of game metadata that is updated each time the application is launched during the bootstrapping process. The first time the application is launched after the configuration is set correctly, an initial metadata refresh will occur during which metadata for all of the games is downloaded to the local cache. Progress for this download is displayed as the number of pages being downloaded. The process should only take a minute or so to complete (depending on the speed of your internet connection).
+
+On subsequent application launches, a delta load is performed and only new data is downloaded from F95. This process should be fairly quick.
+
+If for some reason you need to update the metadata manually, select option 3 from the application main menu. This will present you with two options:
+
+1. *Get latest updates only* This option will immediately perform a delta refresh of the metadata.
+1. *Refresh all metadata* This option will cause the application to refresh all metadata on the next application launch.
+
+![main menu](images/v0.1.1/metadata-refresh.png)
+
 ## Library Management
+
+Your library is the core of Game Manager and where you will spend most of your time. This section will discuss all of the options on the Library menu.
+
+![library menu](images/v0.1.1/library-menu.png)
+
+### Adding a New Game
+
+In order to add a new game to Game Manager, you need to know the F95 thread ID value of the game. This can be found at the end of the address for the game thread in you browser.
+
+![game thread](images/v0.1.1/game-thread.png)
+
+Once you have the ID for the game you wish to add:
+
+1. Choose option Add Game (1) option from the Library menu.
+1. Enter the thread ID at the prompt.
+1. Game Manager will display the metadata for the game.
+1. Assuming the data, enter Y to add it to your library. Game Manager will load the game details screen so you can [manage your game](#game-management).
+
+![game metadata](images/v0.1.1/metadata-screen.png)
+
+Game Manager has additional features when adding games:
+
+1. If a game is already in your library and you try to add it, a yellow message will appear stating this condition.
+1. If you are adding a game that you've previously [deleted](#deleting-games), a yellow message will appear stating when the game was deleted and, if provided when deleted, the reason you deleted it. This will help you avoid playing games that you already determined weren't up to your standard :smile:
+
+### Check for Updates
+
+The Check for Updates (2) option will scan your library for updates to your games. Read more about it in the [Managing Game Updates](#managing-game-updates) section.
+
+### Library Views
+
+The remaining options on the Library menu present different views of your library. The following table outlines the menu options, a description of the filtering rule used, and how the games are sorted. 
+
+| Menu Option | How it's Filtered | How it's Sorted |
+| --- | --- | --- |
+| Games with Updates (3) | Shows all games with updates available | Most recently updated first |
+| Recently Played (4) | Shows all games that have been played at least once | Most recently played first | 
+| Ready to Play (5) | All games with an executable path set | Most recently played first, then by name if game hasn't been launched |
+| Never Played (6) | Games that have never been launched | Most recently added/upgraded, then by name |
+| Automatic Updates Disabled (7) | Games with check for updates automatically set to *no* | Most recently added/upgraded, then by name |
+| By Name (8) | All games | Sorted by name |
+| By Recently Added or Upgraded (9) | All games | Most recently added/upgraded, then by name |
 
 ## Game Management
 
 ### Managing Game Updates
+
+### Deleting Games
 
 ## Data Management
 
