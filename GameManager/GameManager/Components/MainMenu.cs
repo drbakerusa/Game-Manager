@@ -21,6 +21,7 @@ public static class MainMenu
         var options = new List<string>
         {
             "Library",
+            "GameManager on Github",
             "Refresh Metadata from F95",
             "Quit Application"
         };
@@ -29,10 +30,14 @@ public static class MainMenu
 
         switch ( UIElements.Menu(options) )
         {
-            case 0:
+            case 0: // Library
                 LibraryMenu.Show();
                 break;
             case 1:
+                new LibraryService().StartProcess("https://github.com/drbakerusa/Game-Manager");
+                Show();
+                break;
+            case 2: // Refresh Metadata
                 try
                 {
                     if ( UIElements.Confirm("Get latest updates only", defaultResponse: false) )
@@ -46,7 +51,7 @@ public static class MainMenu
                 }
                 Show();
                 break;
-            case 2:
+            case 3: // Quit Application
                 Environment.Exit(0);
                 break;
             default:

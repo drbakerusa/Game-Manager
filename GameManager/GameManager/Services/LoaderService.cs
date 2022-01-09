@@ -181,7 +181,8 @@ public class LoaderService : IDisposable
                         {
                             cmd = "list",
                             cat = "games",
-                            page = pageNumber
+                            page = pageNumber,
+                            rows = 90
                         })
                     .GetJsonAsync<Result>();
             }
