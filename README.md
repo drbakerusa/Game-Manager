@@ -23,8 +23,13 @@ F95 Game Manager is a simple and fast text-based library manager for your [F95zo
     * [Check for Updates](#check-for-updates)
     * [Library Views](#library-views)
 * [Game Management](#game-management)
+    * [Launching Games](#launching-games)
+    * [Comments](#comments)
     * [Managing Game Updates](#managing-game-updates)
+    * [Managing Executable Paths](#managing-executable-paths)
 * [Data Management](#data-management)
+    * [Backing Up User Data](#backing-up-user-data)
+    * [Moving to Another Computer](#moving-to-another-computer)
 
 ## Getting Started
 
@@ -52,9 +57,10 @@ Other than that, all other configuration options are preset for you :smile:
 
 ## Application Configuration
 
-Application configuration is provided by the Settings.json file. The settings file is created (along with a the database) the first time the Game Manager is launched. On most systems, that file will live here: `"C:\Users\<<your-user-name>>\AppData\Local\F95 Game Manager\Settings.json"`. You can access Local AppData on Windows by entering `%LOCALAPPDATA%` into File Explorer.
-
-![%LOCALAPPDATA%](images/v0.1.1/localappdata.png)
+Application configuration is provided by the Settings.json file. The settings file is created (along with a the database) the first time the Game Manager is launched. On most systems, that file will live here: `"C:\Users\<<your-user-name>>\AppData\Local\F95 Game Manager\Settings.json"`. 
+> **Tip**: You can access Local AppData on Windows by entering `%LOCALAPPDATA%` into File Explorer.
+>
+>![%LOCALAPPDATA%](images/v0.1.1/localappdata.png)
 
 The exact path of the the settings file is display in the error above.
 
@@ -134,9 +140,100 @@ The remaining options on the Library menu present different views of your librar
 
 ## Game Management
 
+Games, the reason Game Manager exists at all. This section outlines everything you can do to a game.
+
+![game details](images/v0.1.1/game-details.png)
+
+### Launching Games
+
+The first option on the game menu toggles between *Launch Game* and *Add Game Launch* depending on whether an [executable path](#managing-executable-paths) is set. When an executable path is set, choosing this option with, unsurprisingly, launch the game. Note, games, especially Ren'py games, can take a few moments to launch, but you should be used to that by now. Have patience, your game is coming. When the executable path is not set, this option will add a game launch, incrementing the counter and setting the last played time to *now*, but the game won't automatically launch.
+
+The details screen displays how many times a game has been launch and when the last launch occurred. Additionally, these statistics can be cleared by choosing the *Clear Play Statistics (8)* option. These statistics are used as sort options for some of the [library views](#library-views).
+
+### Comments
+
+Choosing the Comments (3) option will load the comments manager. From there you can add and remove game comments. When a game has at least one comment, the game details will show the latest comment as shown in the image above.
+
+![game comments](images/v0.1.1/game-comments.png)
+
 ### Managing Game Updates
+
+Game Manager can be configured to automatically check for updates to games in your library. By default, games are added to your library with automatically check for updates set to *no*. If you would like for new games to be automatically checked for updates, you can change this in the [settings file](#the-settings-file). 
+
+Game Manager will automatically check for updates for all games with automatically check for updates set to *yes* each time the application is launched. You can also check the entire library from the option on the [library menu](#check-for-updates).
+
+The game details screen offers the following options to manage game updates:
+
+* *Check for Updates* (4) : This will check for updates for the current game. This option is only available if the game doesn't have updates pending.
+* *Apply Updates* (4) : This option will apply the current update to the game by performing the following steps
+
+    1. Update the metadata values for the version, tags, and prefixes.
+    1. Clear the game executable path. After the game is updated, you will need to reset the path to the executable for the new version. Read more about that [below](#managing-executable-paths)
+
+* *Prevent/Allow Automatic Update Checks* :  Will toggle the Check for Update Automatically between yes and no.
+
+When Game Manager discovers and update for a game, it will display it in two places: on the main menu and on the game details screen.
+
+![main menu with upgrade](images/v0.1.1/main-menu-with-update.png)
+
+![game-with-update](images/v0.1.1/game-with-update.png)
+
+### Managing Executable Paths
+
+Setting the executable path for a game creates a link between Game Manager and the game files. Once this link is establish, Game Manager can automatically launch game and track play statistics as mentioned in the [launching games](#launching-games) section.
+
+To set the executable path, choose *Set Executable Path* (6) from the menu and enter the path.
+
+![set executable path](images/v0.1.1/set-executable-path.png)
+
+> **Tip**: Windows offers a simple way to get the path. Simply select the file and, on Windows 10, choose *Copy Path* from the Home tab on the Ribbon and on Windows 11, right-click the file and choose *Copy as path* then paste the path into Game Manager.
+>
+> ![windows 10 copy path](images/v0.1.1/windows-10-copy-path.png)
+>
+> ![windows 11 copy as path](images/v0.1.1/windows-11-copy-as-path.png)
+
+If a game already has an executable path set, option 6 will change to *Clear Executable Path*. Choosing this option will clear the path (as expected). This is useful if you need to change the path or you have deleted the game files from your hard disk.
 
 ### Deleting Games
 
+Unsurprisingly, deleting a game will remove it from your library. That isn't the end of the story however. Game Manager will allow you to add a reason when you delete a game. This is stored in the database and will be display if you attempt to add a game that you have deleted previously. It is recommended that you add an informative reason as a note to yourself whenever you delete a game.
+
+Deleting a game will delete all information about the game from the database including any comments you have made. **This cannot be reversed!**
+
+To delete a game:
+
+1. Open the game details screen
+1. Choose the *Delete Game* (8) option
+1. Confirm that you want to delete
+1. Enter your reason if desired
+
+![delete game](images/v0.1.1/delete-reason.png)
+
 ## Data Management
 
+Game Manager requires very little in terms of data management, but this section covers what you need to know.
+
+Game Manager uses three data files
+
+* GameManager.db : This is your library database.
+* Controls.json : This contains settings that are internal to the application and requires no direct user interaction.
+* Settings.json : This is your user settings for the application. It is document [above](#the-settings-file).
+
+On most systems, these files will live here: `"C:\Users\<<your-user-name>>\AppData\Local\F95 Game Manager"`. 
+> **Tip**: You can access Local AppData on Windows by entering `%LOCALAPPDATA%` into File Explorer.
+>
+>![%LOCALAPPDATA%](images/v0.1.1/localappdata.png)
+
+### Backing Up User Data
+
+To backup your data:
+
+1. Ensure that the Game Manager is not running.
+1. Navigate to the folder mentioned above.
+1. Copy the three data files (GameManager.db, Settings.json, and Controls.json) to a backup location.
+
+### Moving to Another Computer
+
+1. [Backup your data](#backing-up-user-data)
+1. [Install Game Manager](#installation) on the new computer.
+1. Copy the backed up data to the folder mentioned above.
