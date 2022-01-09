@@ -1,5 +1,5 @@
-# F95 Game Manager
-F95 Game Manager is a simple and fast text-based library manager for your [F95zone](https://f95zone.to/) game library. With it you can:
+# Game Manager
+Game Manager is a simple and fast text-based library manager for your [F95zone](https://f95zone.to/) game library. With it you can:
 * keep track of games you find interesting,
 * automatically check for updates to your favorite games,
 * track how often and when you last played a game,
