@@ -173,22 +173,27 @@ public static class UIElements
     private static void PageHeader()
     {
         var version = Assembly.GetExecutingAssembly().GetName().Version;
+        var title = GenerateApplicationTitle();
+
+        using ( var settings = new SettingsService() )
+        {
+            if ( settings.NewerVersionExists )
+                title += $" [{settings.LatestApplicationVersion} is available!]";
+        }
+
+        Blue(title);
+        Divider();
+    }
+
+    private static string GenerateApplicationTitle()
+    {
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
         var versionString = string.Empty;
 
         if ( version != null )
-        {
             versionString = $"v{version.Major}.{version.Minor}.{version.Build}";
 
-            using ( var settings = new SettingsService() )
-            {
-                if ( settings.NewerVersionExists )
-                    versionString += $" [{settings.LatestApplicationVersion} is available!]";
-            }
-
-        }
-
-        Blue($"F95 Game Manager {versionString}");
-        Divider();
+        return ($"Game Manager {versionString}");
     }
 
     private static void Underline(string message) => Console.WriteLine("".PadRight(message.Length, '-'));
