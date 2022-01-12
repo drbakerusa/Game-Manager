@@ -18,6 +18,8 @@ public static class UIElements
 
     public static void Blank() => Console.WriteLine();
 
+    public static string ApplicationTitle => GenerateApplicationTitle();
+
     public static void Divider(bool fullwidth = true, bool includeSpace = false)
     {
         int width = 0;

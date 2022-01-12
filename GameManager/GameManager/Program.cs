@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
+Console.Title = UIElements.ApplicationTitle;
+
 UIElements.PageTitle("Loading . . .");
 
 UIElements.Normal("Checking Database");
