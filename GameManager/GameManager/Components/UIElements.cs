@@ -39,8 +39,6 @@ public static class UIElements
 
     public static void PageTitle(string title)
     {
-        PageHeader();
-        Blank();
         Console.WriteLine(title);
         Underline(title);
         Blank();
@@ -75,14 +73,10 @@ public static class UIElements
         while ( !selectionMade )
         {
             Console.Clear();
-            PageHeader();
-            Blank();
+            PageTitle(listTitle);
 
             var optionsPage = new List<string>();
-            var message = $"Page {currentPage} of {totalPages}";
-            Normal(listTitle);
-            Normal(message);
-            Underline(message);
+            Normal($"Page {currentPage} of {totalPages}");
             Blank();
 
             optionsPage = options.Skip((currentPage - 1) * pageSize)
@@ -131,14 +125,37 @@ public static class UIElements
         var response = Console.ReadLine()?.ToLower();
 
         if ( defaultResponse == true )
-            return string.IsNullOrEmpty(response) || response == "y";
+        {
+            if ( string.IsNullOrEmpty(response) )
+                return true;
+            return response == "y";
+        }
         else
-            return !string.IsNullOrEmpty(response) || response == "y";
+        {
+            if ( string.IsNullOrEmpty(response) )
+                return false;
+            return response == "y";
+        }
     }
 
     public static string ConvertBoolToYesNo(bool value) => value ? "yes" : "no";
 
     public static string MenuOption(int index, string optionText) => $"{index,4}.     {optionText}";
+
+    public static void PageHeader()
+    {
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        var title = GenerateApplicationTitle();
+
+        using ( var settings = new SettingsService() )
+        {
+            if ( settings.NewerVersionExists )
+                title += $" [{settings.LatestApplicationVersion} is available!]";
+        }
+
+        Blue(title);
+        Divider();
+    }
 
     private static int? SelectionPrompt(string message, int numberOfOptions)
     {
@@ -170,21 +187,6 @@ public static class UIElements
         Console.ForegroundColor = color;
         Console.WriteLine(message);
         Console.ResetColor();
-    }
-
-    private static void PageHeader()
-    {
-        var version = Assembly.GetExecutingAssembly().GetName().Version;
-        var title = GenerateApplicationTitle();
-
-        using ( var settings = new SettingsService() )
-        {
-            if ( settings.NewerVersionExists )
-                title += $" [{settings.LatestApplicationVersion} is available!]";
-        }
-
-        Blue(title);
-        Divider();
     }
 
     private static string GenerateApplicationTitle()
