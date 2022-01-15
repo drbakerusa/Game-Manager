@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace GameManager.Components;
+namespace GameManager.Interface;
 
 public static class UIElements
 {
@@ -22,7 +22,7 @@ public static class UIElements
 
     public static void Divider(bool fullwidth = true, bool includeSpace = false)
     {
-        int width = 0;
+        var width = 0;
         if ( fullwidth )
             width = Console.WindowWidth - 2;
         else
@@ -31,7 +31,7 @@ public static class UIElements
         if ( includeSpace )
             Blank();
 
-        Normal(("".PadLeft(width, '-')));
+        Normal("".PadLeft(width, '-'));
 
         if ( includeSpace )
             Blank();
@@ -50,9 +50,7 @@ public static class UIElements
             Divider(fullwidth: false, includeSpace: true);
 
         foreach ( var option in options )
-        {
-            Normal(MenuOption(index: (options.IndexOf(option) + 1), optionText: option));
-        }
+            Normal(MenuOption(index: options.IndexOf(option) + 1, optionText: option));
 
         var selection = SelectionPrompt("Make a selection", numberOfOptions: options.Count);
 
@@ -88,9 +86,7 @@ public static class UIElements
                 optionsPage.Add("Next Page");
 
             foreach ( var option in optionsPage )
-            {
-                Normal(MenuOption(index: (optionsPage.IndexOf(option) + 1), optionText: option));
-            }
+                Normal(MenuOption(index: optionsPage.IndexOf(option) + 1, optionText: option));
 
             var selection = SelectionPrompt($"Make a selection ({promptCancelMessage})", numberOfOptions: options.Count);
 
@@ -148,10 +144,8 @@ public static class UIElements
         var title = GenerateApplicationTitle();
 
         using ( var settings = new SettingsService() )
-        {
             if ( settings.NewerVersionExists )
                 title += $" [{settings.LatestApplicationVersion} is available!]";
-        }
 
         Blue(title);
         Divider();
@@ -160,7 +154,7 @@ public static class UIElements
     private static int? SelectionPrompt(string message, int numberOfOptions)
     {
         var selectionMade = false;
-        int selection = int.MinValue;
+        var selection = int.MinValue;
 
         while ( !selectionMade )
         {
@@ -173,10 +167,8 @@ public static class UIElements
                 return null;
 
             if ( int.TryParse(input, out selection) )
-            {
                 if ( selection > 0 && selection <= numberOfOptions )
                     selectionMade = true;
-            }
         }
 
         return selection;
@@ -197,13 +189,13 @@ public static class UIElements
         if ( version != null )
             versionString = $"v{version.Major}.{version.Minor}.{version.Build}";
 
-        return ($"95 Games {versionString}");
+        return $"95 Games {versionString}";
     }
 
     private static void Underline(string message) => Console.WriteLine("".PadRight(message.Length, '-'));
 
     private static int CalculateTotalPages(int numberOfItems)
-        => (int) Math.Ceiling((decimal) numberOfItems / (decimal) new SettingsService().DefaultPageSize);
+        => (int) Math.Ceiling(numberOfItems / (decimal) new SettingsService().DefaultPageSize);
 
 
 }
