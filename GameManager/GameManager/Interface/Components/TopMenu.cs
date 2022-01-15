@@ -2,8 +2,12 @@
 {
     public class TopMenu : MenuBar
     {
-        public TopMenu()
+        private readonly InteropService _interop;
+
+        public TopMenu(InteropService interop)
         {
+            _interop = interop;
+
             Menus = new MenuBarItem[]
             {
                 FileMenu
@@ -12,7 +16,8 @@
 
         private MenuBarItem FileMenu => new MenuBarItem("_File", new MenuItem[]
         {
-            new MenuItem("_Quit", "Exit 95Games", () => Application.RequestStop())
+            new MenuItem("Latest _Release","", () => _interop.OpenUrl("https://github.com/drbakerusa/Game-Manager/releases/latest")),
+            new MenuItem("_Quit", "", () => Application.RequestStop())
         });
     }
 }

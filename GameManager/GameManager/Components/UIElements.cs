@@ -197,7 +197,7 @@ public static class UIElements
         if ( version != null )
             versionString = $"v{version.Major}.{version.Minor}.{version.Build}";
 
-        return ($"Game Manager {versionString}");
+        return ($"95 Games {versionString}");
     }
 
     private static void Underline(string message) => Console.WriteLine("".PadRight(message.Length, '-'));
