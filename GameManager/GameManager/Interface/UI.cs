@@ -2,19 +2,18 @@
 {
     public class UI
     {
-        private readonly InteropService _interop;
+        private readonly IInteropService _interop;
 
-        public UI(InteropService interop)
+        public UI(IInteropService interop)
         {
             _interop = interop;
+            Application.Init();
         }
 
         public void Start()
         {
-            Application.Init();
 
             var top = Application.Top;
-            var topFrame = top.Frame;
 
             var window = new Window(UIElements.ApplicationTitle)
             {

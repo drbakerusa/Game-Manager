@@ -6,9 +6,9 @@ using Flurl.Http;
 
 using GameManager.Data.Github;
 
-namespace GameManager.Services;
+namespace GameManager.Services.Implementation;
 
-public class GitHubService : IDisposable
+public class GitHubService : IDisposable, IGitHubService
 {
     string _repoUrl = "https://api.github.com/repos/drbakerusa/Game-Manager/";
 

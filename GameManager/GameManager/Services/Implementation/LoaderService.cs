@@ -4,9 +4,9 @@ using GameManager.Data.F95;
 
 using HtmlAgilityPack;
 
-namespace GameManager.Services;
+namespace GameManager.Services.Implementation;
 
-public class LoaderService : IDisposable
+public class LoaderService : IDisposable, ILoaderService
 {
     private readonly SettingsService _settingsService;
     private CookieJar _jar = new CookieJar();
@@ -72,9 +72,7 @@ public class LoaderService : IDisposable
             var gameRecord = db.GameMetadata.Find(gameMetadata.Id);
 
             if ( gameRecord != null )
-            {
                 db.GameMetadata.Remove(gameRecord);
-            }
             db.GameMetadata.Add(gameMetadata);
             db.SaveChanges();
         }
@@ -100,9 +98,7 @@ public class LoaderService : IDisposable
     {
         var updatedTags = new List<string>();
         foreach ( var tag in tags )
-        {
             updatedTags.Add($"[{tag}]");
-        }
         return string.Join(' ', updatedTags);
     }
 
@@ -132,7 +128,7 @@ public class LoaderService : IDisposable
             var result = await url.GetStringAsync();
             html.LoadHtml(result);
 
-            string token = "";
+            var token = "";
 
             token = html.DocumentNode.Descendants("input")
                 .Where(i => i.Attributes.Where(a => a.Value == "_xfToken").Any())
@@ -166,7 +162,7 @@ public class LoaderService : IDisposable
     async Task<Result> GetPageAsync(int pageNumber)
     {
         Result result = new();
-        bool success = false;
+        var success = false;
 
         do
         {

@@ -2,9 +2,9 @@
 {
     public class TopMenu : MenuBar
     {
-        private readonly InteropService _interop;
+        private readonly IInteropService _interop;
 
-        public TopMenu(InteropService interop)
+        public TopMenu(IInteropService interop)
         {
             _interop = interop;
 

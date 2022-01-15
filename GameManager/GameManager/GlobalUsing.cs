@@ -5,6 +5,7 @@ global using GameManager.Data;
 global using GameManager.Interface;
 global using GameManager.Interface.Components;
 global using GameManager.Services;
+global using GameManager.Services.Implementation;
 
 global using Humanizer;
 

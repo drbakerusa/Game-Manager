@@ -1,16 +1,17 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace GameManager.Services;
+namespace GameManager.Services.Implementation;
 
-public class LibraryService
+public class LibraryService : ILibraryService
 {
-    DataContext _data;
     Settings _settings;
-    public LibraryService()
+    private readonly DataContext _data;
+
+    public LibraryService(DataContext data)
     {
-        _data = new DataContext();
         _settings = new SettingsService().GetSettings();
+        _data = data;
     }
 
     public bool MetadataExists(int metadataId) => _data.GameMetadata.Find(metadataId) != null;
@@ -40,9 +41,7 @@ public class LibraryService
 
         var deletedGame = _data.DeletedGames.Find(metadataId);
         if ( deletedGame != null )
-        {
             _data.Remove(deletedGame);
-        }
 
         _data.Library.Add(game);
         _data.SaveChanges();
@@ -77,7 +76,6 @@ public class LibraryService
         var metadata = GetGameMetadata(game.MetadataId);
 
         if ( metadata.WhenRefreshed > game.WhenUpdated && metadata.Version != game.Version )
-        {
             if ( game.AvailableUpgradeVersion != metadata.Version )
             {
                 game.WhenUpgradeDiscovered = DateTime.Now;
@@ -85,15 +83,12 @@ public class LibraryService
                 game.HasUpgradeAvailable = true;
                 _data.SaveChanges();
             }
-        }
     }
 
     public void CheckLibraryForUpdates()
     {
         foreach ( var game in _data.Library.Where(g => !g.ManualUpdatesOnly) )
-        {
             CheckGameForUpdates(game);
-        }
     }
 
     public bool GameUpdatesAreAvailable => _data.Library.Any(g => g.HasUpgradeAvailable);
@@ -232,17 +227,11 @@ public class LibraryService
                 Process.Start(new ProcessStartInfo("cmd", $"/c start {command}") { CreateNoWindow = true });
             }
             else if ( RuntimeInformation.IsOSPlatform(OSPlatform.Linux) )
-            {
                 Process.Start("xdg-open", command);
-            }
             else if ( RuntimeInformation.IsOSPlatform(OSPlatform.OSX) )
-            {
                 Process.Start("open", command);
-            }
             else
-            {
                 throw;
-            }
         }
     }
 

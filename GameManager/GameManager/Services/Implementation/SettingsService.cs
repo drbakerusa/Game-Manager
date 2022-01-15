@@ -1,6 +1,6 @@
 ﻿namespace GameManager.Services;
 
-public class SettingsService : IDisposable
+public class SettingsService : ISettingsService, IDisposable
 {
     private readonly string _settingsFilePath;
     private readonly string _controlFilePath;

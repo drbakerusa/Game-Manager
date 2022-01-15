@@ -7,12 +7,29 @@ namespace GameManager.Services
     public class ApplicationHostService : IHostedService
     {
         private readonly IHostApplicationLifetime _hostApplication;
-        private readonly InteropService _interop;
+        private readonly IGitHubService _gitHub;
+        private readonly DataContext _dataContext;
+        private readonly IInteropService _interop;
+        private readonly ILibraryService _library;
+        private readonly ISettingsService _settings;
+        private readonly ILoaderService _loader;
 
-        public ApplicationHostService(IHostApplicationLifetime hostApplication, InteropService interop)
+        public ApplicationHostService(
+            IHostApplicationLifetime hostApplication,
+            IGitHubService gitHub,
+            DataContext dataContext,
+            IInteropService interop,
+            ILibraryService library,
+            ISettingsService settings,
+            ILoaderService loader)
         {
             _hostApplication = hostApplication;
+            _gitHub = gitHub;
+            _dataContext = dataContext;
             _interop = interop;
+            _library = library;
+            _settings = settings;
+            _loader = loader;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -20,61 +37,49 @@ namespace GameManager.Services
             UIElements.PageTitle("Loading . . .");
 
             UIElements.Normal("Checking Database");
-            using ( var db = new DataContext() )
+            if ( _dataContext.Database.GetPendingMigrations().Any() )
             {
-                if ( db.Database.GetPendingMigrations().Any() )
-                {
-                    UIElements.Warning("Updating Schema");
-                    db.Database.GetService<IMigrator>().Migrate();
-                }
-
-                UIElements.Success("OK!");
-                UIElements.Blank();
+                UIElements.Warning("Updating Schema");
+                _dataContext.Database.GetService<IMigrator>().Migrate();
             }
+
+            UIElements.Success("OK!");
+            UIElements.Blank();
 
             UIElements.Normal("Verifying Application Settings");
-            using ( var settingsService = new SettingsService() )
+            if ( !_settings.HasF95Credentials() )
             {
-                if ( !settingsService.HasF95Credentials() )
-                {
-                    UIElements.Error($"F95 credentials are not set in the settings file. Update the settings file ({settingsService.SettingsFilePath}) and restart the application.");
-                    _ = UIElements.TextInput("Press ENTER to close application");
-                    Environment.Exit(1);
-                }
-
-                UIElements.Success("OK!");
-                UIElements.Blank();
+                UIElements.Error($"F95 credentials are not set in the settings file. Update the settings file ({_settings.SettingsFilePath}) and restart the application.");
+                _ = UIElements.TextInput("Press ENTER to close application");
+                Environment.Exit(1);
             }
+
+            UIElements.Success("OK!");
+            UIElements.Blank();
 
             UIElements.Normal("Checking for Application Version");
-            using ( var gitHub = new GitHubService() )
-            {
-                if ( await gitHub.CheckIfNewerVersionExists() )
-                    UIElements.Success("A newer version is available!");
-                else
-                    UIElements.Success("On latest version");
-            }
+            if ( await _gitHub.CheckIfNewerVersionExists() )
+                UIElements.Success("A newer version is available!");
+            else
+                UIElements.Success("On latest version");
             UIElements.Blank();
 
             UIElements.Normal("Fetching Game Metadata from F95");
-            using ( var loader = new LoaderService() )
+            try
             {
-                try
-                {
-                    await loader.LoadMetadata();
-                    UIElements.Success("OK!");
-                }
-                catch ( Exception e )
-                {
-                    UIElements.Error($"Cannot access F95: {e.Message}");
-                }
-
-
-                UIElements.Blank();
+                await _loader.LoadMetadata();
+                UIElements.Success("OK!");
+            }
+            catch ( Exception e )
+            {
+                UIElements.Error($"Cannot access F95: {e.Message}");
             }
 
+
+            UIElements.Blank();
+
             UIElements.Normal("Checking library for updates");
-            new LibraryService().CheckLibraryForUpdates();
+            _library.CheckLibraryForUpdates();
 
             UIElements.Success("OK!");
             UIElements.Blank();
