@@ -35,13 +35,22 @@ public static class UIElements
             Blank();
     }
 
-    public static int IntegerInput(int defaultValue)
+    public static int? IntegerInput(int? defaultValue, string prompt = "")
     {
         var inputIsInteger = false;
 
         while ( !inputIsInteger )
         {
-            var input = TextInput($"Enter value ({defaultValue})");
+            var defaultString = defaultValue is null ? string.Empty : $" ({defaultValue})";
+
+            var message = string.Empty;
+
+            if ( string.IsNullOrEmpty(prompt) )
+                message = $"Enter value{defaultString}";
+            else
+                message = $"{prompt}{defaultString}";
+
+            var input = TextInput(message);
 
             if ( string.IsNullOrEmpty(input) )
                 break;

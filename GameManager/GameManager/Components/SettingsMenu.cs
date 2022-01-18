@@ -28,7 +28,7 @@
                     Show();
                     break;
                 case 1: // Default Page Size
-                    settingsService.DefaultPageSize = UIElements.IntegerInput(settings.DefaultPageSize);
+                    settingsService.DefaultPageSize = UIElements.IntegerInput(settings.DefaultPageSize) ?? new Settings().DefaultPageSize;
                     Show();
                     break;
                 case 2: // Automatically Check for Game Updates
