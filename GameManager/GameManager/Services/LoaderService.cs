@@ -26,13 +26,13 @@ public class LoaderService : IDisposable
 
     public async Task LoadMetadata()
     {
+        await AuthenticateF95Async();
+
         var pageNumber = 1;
         var totalPages = await GetTotalPagesAsync();
         var controlIdFound = false;
         var newControlId = string.Empty;
         var performingFullDataLoad = _settingsService.ControlId == "0";
-
-        await AuthenticateF95Async();
 
         if ( performingFullDataLoad )
             Console.WriteLine("Loading all metadata from F95. This will take a few minutes");
@@ -109,9 +109,15 @@ public class LoaderService : IDisposable
 
     private async Task AuthenticateF95Async()
     {
-        var testUrl = _baseUrl.WithCookies(_jar).AppendPathSegment("login/login");
-
         var settings = _settingsService.GetSettings();
+
+        if ( string.IsNullOrEmpty(settings.F95Username) )
+            throw new ArgumentNullException(nameof(settings.F95Username));
+
+        if ( string.IsNullOrEmpty(settings.F95Password) )
+            throw new ArgumentNullException(nameof(settings.F95Password));
+
+        var testUrl = _baseUrl.WithCookies(_jar).AppendPathSegment("login/login");
 
         var testResult = await testUrl.GetStringAsync();
         var testHtml = new HtmlDocument();
@@ -146,11 +152,9 @@ public class LoaderService : IDisposable
             {
                 var formContents = new[]
                 {
-                        //new KeyValuePair<string, string>("login", settings.F95Username ?? throw new NullReferenceException(nameof(settings.F95Username))),
-                        new KeyValuePair<string, string>("login","foo"),
+                        new KeyValuePair<string, string>("login", settings.F95Username ?? throw new NullReferenceException(nameof(settings.F95Username))),
                         new KeyValuePair<string, string>("url",""),
-                        //new KeyValuePair<string, string>("password", settings.F95Password ?? throw new NullReferenceException(nameof(settings.F95Password))),
-                        new KeyValuePair<string, string>("password","bar"),
+                        new KeyValuePair<string, string>("password", settings.F95Password ?? throw new NullReferenceException(nameof(settings.F95Password))),
                         new KeyValuePair<string, string>("password_confirm",""),
                         new KeyValuePair<string, string>("additional_security",""),
                         new KeyValuePair<string, string>("_xfRedirect",_baseUrl),
@@ -198,12 +202,6 @@ public class LoaderService : IDisposable
                 }
                 else
                     throw (e);
-            }
-            catch ( Exception e )
-            {
-                Console.WriteLine(e.Message);
-                await Task.Delay(60000);
-                continue;
             }
             success = true;
         }

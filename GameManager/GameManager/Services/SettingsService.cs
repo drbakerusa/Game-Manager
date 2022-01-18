@@ -2,100 +2,96 @@
 
 public class SettingsService : IDisposable
 {
-    private readonly string _settingsFilePath;
-    private readonly string _controlFilePath;
-    private readonly string _dataFolderPath;
+    private DataContext _dataContext;
 
     public SettingsService()
     {
-        _dataFolderPath = Path.Join((Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)), "F95 Game Manager");
-
-        if ( CurrentEnviroment.IsDevelopment )
-        {
-            _settingsFilePath = Path.Combine(_dataFolderPath, "Settings.dev.json");
-            _controlFilePath = Path.Combine(_dataFolderPath, "Controls.dev.json");
-        }
-        else
-        {
-            _settingsFilePath = Path.Combine(_dataFolderPath, "Settings.json");
-            _controlFilePath = Path.Combine(_dataFolderPath, "Controls.json");
-        }
-        InitializeSettings();
+        _dataContext = new DataContext();
     }
 
-    public Settings GetSettings() => JsonConvert.DeserializeObject<Settings>(File.ReadAllText(_settingsFilePath)) ?? new Settings();
-    public Controls GetControls() => JsonConvert.DeserializeObject<Controls>(File.ReadAllText(_controlFilePath)) ?? new Controls();
-    public string SettingsFilePath => _settingsFilePath;
+    public Settings GetSettings() => _dataContext.Settings.FirstOrDefault() ?? new Settings();
     public bool CheckForUpdatesAutomatically => GetSettings().AutomaticallyCheckForGameUpdates;
 
     public string LatestApplicationVersion
     {
-        get => GetControls().LatestApplicationVersion;
+        get => GetSettings().LatestApplicationVersion;
         set
         {
-            var controls = GetControls();
+            var controls = GetSettings();
             controls.LatestApplicationVersion = value;
-            SaveControls(controls);
+            SaveSettings(controls);
         }
     }
 
     public bool NewerVersionExists
     {
-        get => GetControls().NewerVersionExists;
+        get => GetSettings().NewerVersionExists;
         set
         {
-            var controls = GetControls();
+            var controls = GetSettings();
             controls.NewerVersionExists = value;
-            SaveControls(controls);
+            SaveSettings(controls);
         }
     }
 
     public string ControlId
     {
-        get => GetControls().MetadataUpdateControlId;
+        get => GetSettings().MetadataUpdateControlId;
         set
         {
-            var controls = GetControls();
+            var controls = GetSettings();
             controls.MetadataUpdateControlId = value;
-            SaveControls(controls);
+            SaveSettings(controls);
+        }
+    }
+
+    public (string Username, string Password) F95Credentials
+    {
+        get
+        {
+            var settings = GetSettings();
+            return (settings.F95Username, settings.F95Password);
         }
     }
 
     public int DefaultPageSize => GetSettings().DefaultPageSize;
 
-    public bool HasF95Credentials()
+    public (bool Result, string Reason) HasValidF95Credentials()
     {
         var settings = GetSettings();
-        return !string.IsNullOrEmpty(settings.F95Username) && !string.IsNullOrEmpty(settings.F95Password);
+
+        if ( string.IsNullOrEmpty(settings.F95Username) || string.IsNullOrEmpty(settings.F95Password) )
+            return (Result: false, Reason: "Username/Password is empty");
+
+        return (Result: true, Reason: "Success");
+
     }
 
-    private void InitializeSettings()
+    public (bool Result, string Reason) SetF95Credentials(string username, string password)
     {
-        if ( !Directory.Exists(_dataFolderPath) )
-            Directory.CreateDirectory(_dataFolderPath);
+        if ( string.IsNullOrEmpty(username) )
+            return (Result: false, Reason: "Username is required");
 
-        if ( !File.Exists(_settingsFilePath) )
-            SaveSettings(new Settings());
+        if ( string.IsNullOrEmpty(password) )
+            return (Result: false, Reason: "Password is required");
 
-        if ( !File.Exists(_controlFilePath) )
-            SaveControls(new Controls());
-
-        // add new settings here
-        // this will update users with older settings schemas
         var settings = GetSettings();
-
-        if ( settings.DefaultPageSize == 0 )
-            settings.DefaultPageSize = 15;
-
+        settings.F95Username = username;
+        settings.F95Password = password;
         SaveSettings(settings);
+
+        return (Result: true, Reason: "Success");
     }
 
-    private void SaveSettings(Settings settings) => File.WriteAllText(_settingsFilePath, JsonConvert.SerializeObject(settings));
+    private void SaveSettings(Settings settings)
+    {
+        if ( settings.Id == 0 )
+            _dataContext.Add(settings);
 
-    private void SaveControls(Controls controls) => File.WriteAllText(_controlFilePath, JsonConvert.SerializeObject(controls));
+        _dataContext.SaveChanges();
+    }
 
     public void Dispose()
     {
     }
-
 }

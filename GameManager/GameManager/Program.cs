@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-UIElements.PageTitle("Loading . . .");
-
 UIElements.Normal("Checking Database");
 using ( var db = new DataContext() )
 {
@@ -20,11 +18,14 @@ using ( var db = new DataContext() )
 UIElements.Normal("Verifying Application Settings");
 using ( var settingsService = new SettingsService() )
 {
-    if ( !settingsService.HasF95Credentials() )
+    var hasValidCredentials = settingsService.HasValidF95Credentials().Result;
+    while ( !hasValidCredentials )
     {
-        UIElements.Error($"F95 credentials are not set in the settings file. Update the settings file ({settingsService.SettingsFilePath}) and restart the application.");
-        _ = UIElements.TextInput("Press ENTER to close application");
-        Environment.Exit(1);
+        UIElements.Error($"F95 Credentials are invalid: {settingsService.HasValidF95Credentials().Reason}");
+        UIElements.Error("Please update your credentials now");
+        var input = UIElements.GetCredentials(settingsService.F95Credentials.Username);
+        var result = settingsService.SetF95Credentials(input.Username, input.Password);
+        hasValidCredentials = result.Result;
     }
 
     UIElements.Success("OK!");
