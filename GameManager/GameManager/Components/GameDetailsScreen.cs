@@ -48,6 +48,7 @@ public class GameDetailsScreen
             string.IsNullOrEmpty(game.ExecutablePath) ? "Set Executable Path" : "Clear Executable Path",
             "Clear Play Statistics",
             "Delete Game",
+            "More from Developer",
             "Back to Library"
         };
 
@@ -137,7 +138,10 @@ public class GameDetailsScreen
                 }
                 Show(gameId);
                 break;
-            case 8: // Return to library
+            case 8: // More from developer
+                MetadataSearchResultsScreen.Show(library.GetMetadataByDeveloperName(game.Developer), $"Search for '{game.Developer}'", game.Id);
+                break;
+            case 9: // Return to library
                 LibraryMenu.Show();
                 break;
             default:

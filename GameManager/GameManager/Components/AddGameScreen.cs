@@ -43,9 +43,13 @@ public static class AddGameScreen
                 Show();
                 break;
             case 3: // By Developer
+                var developerSearch = UIElements.TextInput("Enter search string");
+                if ( !string.IsNullOrEmpty(developerSearch) )
+                    MetadataSearchResultsScreen.Show(library.GetMetadataByDeveloperName(developerSearch), $"Search for '{developerSearch}'");
                 Show();
                 break;
             case 4: // By Prefix
+                TagPickerScreen.Show(TagType.Prefix, StoreType.Metadata);
                 Show();
                 break;
             case 5: // By Tag

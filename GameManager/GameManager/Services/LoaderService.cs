@@ -18,6 +18,10 @@ public class LoaderService : IDisposable
         _jar = new CookieJar();
     }
 
+    public List<string> Tags => Map.Tags.Values.OrderBy(x => x).ToList();
+
+    public List<string> Prefixes => Map.Prefixes.Values.OrderBy(x => x).ToList();
+
     public async Task RefreshAllMetadata()
     {
         _settingsService.ControlId = "0";

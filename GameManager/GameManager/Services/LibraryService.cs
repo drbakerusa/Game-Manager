@@ -311,4 +311,24 @@ public class LibraryService
     public IList<GameMetadata> GetMetadataByGameName(string name) => _data.GameMetadata.Where(g => g.Name.ToLower().Contains(name.Trim().ToLower()))
                                                                                        .OrderBy(g => g.Name)
                                                                                        .ToList();
+
+    public IList<GameMetadata> GetMetadataByDeveloperName(string name) => _data.GameMetadata.Where(g => g.Developer.ToLower().Contains(name.Trim().ToLower()))
+                                                                                            .OrderBy(g => g.Name)
+                                                                                            .ToList();
+
+    public IList<GameMetadata> GetMetadataByTag(string tag, TagType tagType)
+    {
+        switch ( tagType )
+        {
+            case TagType.Tag:
+                return _data.GameMetadata.Where(m => m.Tags.Contains(tag))
+                                         .OrderBy(g => g.Name)
+                                         .ToList();
+            case TagType.Prefix:
+                return _data.GameMetadata.Where(m => m.Prefixes.Contains(tag))
+                                         .OrderBy(g => g.Name)
+                                         .ToList();
+        }
+        return new List<GameMetadata>();
+    }
 }

@@ -2,7 +2,7 @@
 {
     public class MetadataSearchResultsScreen
     {
-        public static void Show(IEnumerable<GameMetadata> games, string pageTitle)
+        public static void Show(IEnumerable<GameMetadata> games, string pageTitle, int returnGameId = 0)
         {
             Console.Clear();
             UIElements.PageTitle(pageTitle);
@@ -13,7 +13,12 @@
             var selection = UIElements.PagedMenu(games.Select(g => g.Name).ToList(), pageTitle, "Blank to cancel");
 
             if ( selection == null )
-                AddGameScreen.Show();
+            {
+                if ( returnGameId == 0 )
+                    AddGameScreen.Show();
+                else
+                    GameDetailsScreen.Show(returnGameId);
+            }
             else
                 MetadataDetailsScreen.Show(games.ElementAt((int) selection).Id);
         }
