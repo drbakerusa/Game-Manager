@@ -9,32 +9,49 @@ public static class AddGameScreen
         Console.Clear();
         UIElements.PageTitle("Add Game");
 
-        var entry = UIElements.TextInput(prompt: "Enter F95 Thread ID (leave empty to cancel)");
-
-        if ( string.IsNullOrEmpty(entry) )
+        var options = new List<string>
         {
-            LibraryMenu.Show();
-        }
-        else
+            "By Thread ID",
+            "By Forum URL",
+            "By Name",
+            "By Developer Name",
+            "By Prefix",
+            "By Tag",
+            "Return to Library"
+        };
+
+        switch ( UIElements.Menu(options) )
         {
-            int metadataId = 0;
-
-            if ( int.TryParse(entry, out metadataId) && library.MetadataExists(metadataId) )
-            {
-                MetadataDetailsScreen.Show(metadataId);
-            }
-            else
-            {
-                Retry();
-            }
+            case 0: // By Thread ID
+                var input = UIElements.IntegerInput(null, "Enter F95 Thread ID (leave empty to cancel)");
+                if ( input is not null )
+                {
+                    MetadataDetailsScreen.Show((int) input);
+                }
+                Show();
+                break;
+            case 1: // By Forum URL
+                Show();
+                break;
+            case 2: // By Name
+                Show();
+                break;
+            case 3: // By Developer
+                Show();
+                break;
+            case 4: // By Prefix
+                Show();
+                break;
+            case 5: // By Tag
+                Show();
+                break;
+            case 6: // Return to library
+                LibraryMenu.Show();
+                break;
+            default:
+                Show();
+                break;
         }
-    }
 
-    private static void Retry()
-    {
-        if ( UIElements.Confirm("Not found. Try again") )
-            Show();
-        else
-            LibraryMenu.Show();
     }
 }

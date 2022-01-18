@@ -15,8 +15,8 @@ public class LibraryService
 
     public bool MetadataExists(int metadataId) => _data.GameMetadata.Find(metadataId) != null;
 
-    public GameMetadata GetGameMetadata(int metadataId)
-        => _data.GameMetadata.Find(metadataId) ?? throw new NullReferenceException();
+    public GameMetadata? GetGameMetadata(int metadataId)
+        => _data.GameMetadata.Find(metadataId);
 
     public bool GameIsInLibrary(int metadataId) => _data.Library.Any(g => g.MetadataId == metadataId);
 
@@ -26,6 +26,8 @@ public class LibraryService
             throw new ArgumentException("Game is already in library");
 
         var metadata = GetGameMetadata(metadataId);
+
+        _ = metadata ?? throw new Exception($"Metadata is null for ID {metadataId}");
 
         var game = new LibraryGame
         {
@@ -76,6 +78,8 @@ public class LibraryService
 
         var metadata = GetGameMetadata(game.MetadataId);
 
+        _ = metadata ?? throw new Exception($"Metadata is null for ID {game.MetadataId}");
+
         if ( metadata.WhenRefreshed > game.WhenUpdated && metadata.Version != game.Version )
         {
             if ( game.AvailableUpgradeVersion != metadata.Version )
@@ -104,6 +108,8 @@ public class LibraryService
     {
         var game = GetGame(gameId);
         var metadata = GetGameMetadata(game.MetadataId);
+
+        _ = metadata ?? throw new Exception($"Metadata is null for ID {gameId}");
 
         game.Name = metadata.Name;
         game.Version = metadata.Version;
