@@ -13,10 +13,58 @@ public class LibraryService
         _settings = new SettingsService().GetSettings();
     }
 
+    public bool GameUpdatesAreAvailable => _data.Library.Any(g => g.HasUpgradeAvailable);
+
+    public int NumberOfUpdatesAvailable => _data.Library.Count(g => g.HasUpgradeAvailable);
+
+    public IEnumerable<LibraryGame> GamesAlphabetical => _data.Library.OrderBy(g => g.Name)
+                                                                      .ToList();
+
+    public IEnumerable<LibraryGame> GamesRecentlyUpdated => _data.Library.OrderByDescending(g => g.WhenUpdated)
+                                                                         .ToList();
+
+    public IEnumerable<LibraryGame> GamesNeverPlayed => _data.Library.Where(g => g.LaunchCount == 0)
+                                                                     .OrderByDescending(g => g.WhenUpdated)
+                                                                     .ThenBy(g => g.Name)
+                                                                     .ToList();
+
+    public IEnumerable<LibraryGame> GamesManualUpdateCheck => _data.Library.Where(g => g.ManualUpdatesOnly)
+                                                                           .OrderByDescending(g => g.WhenUpdated)
+                                                                           .ThenBy(g => g.Name)
+                                                                           .ToList();
+
+    public IEnumerable<LibraryGame> GamesWithUpdates => _data.Library.Where(g => g.HasUpgradeAvailable)
+                                                                     .OrderByDescending(g => g.WhenUpgradeDiscovered)
+                                                                     .ToList();
+
+    public IEnumerable<LibraryGame> RecentlyPlayedGames => _data.Library.Where(g => g.WhenLastLaunched != null)
+                                                                        .OrderByDescending(g => g.WhenLastLaunched)
+                                                                        .ToList();
+
+    public IEnumerable<LibraryGame> ReadyToPlayGames => _data.Library.Where(g => !string.IsNullOrEmpty(g.ExecutablePath))
+                                                                     .OrderByDescending(g => g.WhenLastLaunched)
+                                                                     .ThenByDescending(g => g.Name)
+                                                                     .ToList();
+
+    public bool GamePreviouslyDeleted(int metadataId) => _data.DeletedGames.Find(metadataId) != null;
+
+    public DeletedGame GetDeletedGame(int metadataId) => _data.DeletedGames.Find(metadataId) ?? throw new ArgumentException();
+
     public bool MetadataExists(int metadataId) => _data.GameMetadata.Find(metadataId) != null;
 
     public GameMetadata? GetGameMetadata(int metadataId)
         => _data.GameMetadata.Find(metadataId);
+
+    public GameMetadata? GetGameMetadata(string forumUrl)
+    {
+        if ( string.IsNullOrEmpty(forumUrl) || !Uri.IsWellFormedUriString(forumUrl, UriKind.Absolute) )
+            return null;
+
+        if ( int.TryParse(forumUrl.Substring(forumUrl.LastIndexOf('.') + 1).Replace("/", string.Empty), out int metadataId) )
+            return GetGameMetadata(metadataId);
+
+        return null;
+    }
 
     public bool GameIsInLibrary(int metadataId) => _data.Library.Any(g => g.MetadataId == metadataId);
 
@@ -54,22 +102,6 @@ public class LibraryService
 
     public LibraryGame GetGame(int gameId) => _data.Library.Find(gameId) ?? throw new NullReferenceException();
 
-    public IEnumerable<LibraryGame> GamesAlphabetical => _data.Library.OrderBy(g => g.Name)
-                                                                      .ToList();
-
-    public IEnumerable<LibraryGame> GamesRecentlyUpdated => _data.Library.OrderByDescending(g => g.WhenUpdated)
-                                                                         .ToList();
-
-    public IEnumerable<LibraryGame> GamesNeverPlayed => _data.Library.Where(g => g.LaunchCount == 0)
-                                                                     .OrderByDescending(g => g.WhenUpdated)
-                                                                     .ThenBy(g => g.Name)
-                                                                     .ToList();
-
-    public IEnumerable<LibraryGame> GamesManualUpdateCheck => _data.Library.Where(g => g.ManualUpdatesOnly)
-                                                                           .OrderByDescending(g => g.WhenUpdated)
-                                                                           .ThenBy(g => g.Name)
-                                                                           .ToList();
-
     public void CheckGameForUpdates(int gameId) => CheckGameForUpdates(GetGame(gameId));
 
     public void CheckGameForUpdates(LibraryGame game)
@@ -100,10 +132,6 @@ public class LibraryService
         }
     }
 
-    public bool GameUpdatesAreAvailable => _data.Library.Any(g => g.HasUpgradeAvailable);
-
-    public int NumberOfUpdatesAvailable => _data.Library.Count(g => g.HasUpgradeAvailable);
-
     public void UpdateGame(int gameId)
     {
         var game = GetGame(gameId);
@@ -123,10 +151,6 @@ public class LibraryService
 
         _data.SaveChanges();
     }
-
-    public IEnumerable<LibraryGame> GamesWithUpdates => _data.Library.Where(g => g.HasUpgradeAvailable)
-                                                                     .OrderByDescending(g => g.WhenUpgradeDiscovered)
-                                                                     .ToList();
 
     public void BrowseGameForum(int gameId)
     {
@@ -193,15 +217,6 @@ public class LibraryService
         _data.SaveChanges();
     }
 
-    public IEnumerable<LibraryGame> RecentlyPlayedGames => _data.Library.Where(g => g.WhenLastLaunched != null)
-                                                                        .OrderByDescending(g => g.WhenLastLaunched)
-                                                                        .ToList();
-
-    public IEnumerable<LibraryGame> ReadyToPlayGames => _data.Library.Where(g => !string.IsNullOrEmpty(g.ExecutablePath))
-                                                                     .OrderByDescending(g => g.WhenLastLaunched)
-                                                                     .ThenByDescending(g => g.Name)
-                                                                     .ToList();
-
     public void DeleteGame(int gameId, string reason)
     {
         var game = GetGame(gameId);
@@ -218,10 +233,6 @@ public class LibraryService
         _data.Remove(game);
         _data.SaveChanges();
     }
-
-    public bool GamePreviouslyDeleted(int metadataId) => _data.DeletedGames.Find(metadataId) != null;
-
-    public DeletedGame GetDeletedGame(int metadataId) => _data.DeletedGames.Find(metadataId) ?? throw new ArgumentException();
 
     public void StartProcess(string command)
     {

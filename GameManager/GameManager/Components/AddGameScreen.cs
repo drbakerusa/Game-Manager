@@ -23,14 +23,17 @@ public static class AddGameScreen
         switch ( UIElements.Menu(options) )
         {
             case 0: // By Thread ID
-                var input = UIElements.IntegerInput(null, "Enter F95 Thread ID (leave empty to cancel)");
-                if ( input is not null )
+                var threadID = UIElements.IntegerInput(null, "Enter F95 Thread ID (leave empty to cancel)");
+                if ( threadID is not null )
                 {
-                    MetadataDetailsScreen.Show((int) input);
+                    MetadataDetailsScreen.Show((int) threadID);
                 }
                 Show();
                 break;
             case 1: // By Forum URL
+                var metadata = library.GetGameMetadata(UIElements.TextInput("Enter Forum URL"));
+                if ( metadata is not null )
+                    MetadataDetailsScreen.Show(metadata.Id);
                 Show();
                 break;
             case 2: // By Name
