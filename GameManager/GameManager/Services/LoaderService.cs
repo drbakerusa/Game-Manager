@@ -15,6 +15,7 @@ public class LoaderService : IDisposable
     public LoaderService()
     {
         _settingsService = new SettingsService();
+        _jar = new CookieJar();
     }
 
     public async Task RefreshAllMetadata()
@@ -145,9 +146,11 @@ public class LoaderService : IDisposable
             {
                 var formContents = new[]
                 {
-                        new KeyValuePair<string, string>("login", settings.F95Username ?? throw new NullReferenceException(nameof(settings.F95Username))),
+                        //new KeyValuePair<string, string>("login", settings.F95Username ?? throw new NullReferenceException(nameof(settings.F95Username))),
+                        new KeyValuePair<string, string>("login","foo"),
                         new KeyValuePair<string, string>("url",""),
-                        new KeyValuePair<string, string>("password", settings.F95Password ?? throw new NullReferenceException(nameof(settings.F95Password))),
+                        //new KeyValuePair<string, string>("password", settings.F95Password ?? throw new NullReferenceException(nameof(settings.F95Password))),
+                        new KeyValuePair<string, string>("password","bar"),
                         new KeyValuePair<string, string>("password_confirm",""),
                         new KeyValuePair<string, string>("additional_security",""),
                         new KeyValuePair<string, string>("_xfRedirect",_baseUrl),
@@ -185,6 +188,16 @@ public class LoaderService : IDisposable
                             rows = 90
                         })
                     .GetJsonAsync<Result>();
+            }
+            catch ( FlurlHttpException e )
+            {
+                if ( e.StatusCode == 429 )
+                {
+                    Console.WriteLine("Request failed due to too many request. This is a limit set by F95 and will resolve itself within 10 minutes. Please wait and try again. The application will now quit.");
+                    Environment.Exit(1);
+                }
+                else
+                    throw (e);
             }
             catch ( Exception e )
             {
