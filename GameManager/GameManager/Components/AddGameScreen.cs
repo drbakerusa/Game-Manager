@@ -53,6 +53,7 @@ public static class AddGameScreen
                 Show();
                 break;
             case 5: // By Tag
+                TagPickerScreen.Show(TagType.Tag, StoreType.Metadata);
                 Show();
                 break;
             case 6: // Return to library
