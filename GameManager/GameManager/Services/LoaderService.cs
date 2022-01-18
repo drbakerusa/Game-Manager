@@ -201,8 +201,10 @@ public class LoaderService : IDisposable
             {
                 if ( e.StatusCode == 429 )
                 {
-                    Console.WriteLine("Request failed due to too many request. This is a limit set by F95 and will resolve itself within 10 minutes. Please wait and try again. The application will now quit.");
-                    Environment.Exit(1);
+                    UIElements.Warning("Request failed due to too many requests. This is a limit set by F95 and will resolve itself within 10 minutes. " +
+                        "You can continue, but functionality with F95 will be limited and metadata will not be complete. " +
+                        "Relaunch the application to try again in 10 minutes or so.");
+                    await Task.Delay(5000);
                 }
                 else
                     throw (e);
