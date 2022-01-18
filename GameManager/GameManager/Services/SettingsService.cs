@@ -1,4 +1,7 @@
-﻿namespace GameManager.Services;
+﻿using System.Security.Cryptography;
+using System.Text;
+
+namespace GameManager.Services;
 
 public class SettingsService : IDisposable
 {
@@ -10,7 +13,16 @@ public class SettingsService : IDisposable
     }
 
     public Settings GetSettings() => _dataContext.Settings.FirstOrDefault() ?? new Settings();
-    public bool CheckForUpdatesAutomatically => GetSettings().AutomaticallyCheckForGameUpdates;
+    public bool CheckForUpdatesAutomatically
+    {
+        get => GetSettings().AutomaticallyCheckForGameUpdates;
+        set
+        {
+            var settings = GetSettings();
+            settings.AutomaticallyCheckForGameUpdates = value;
+            SaveSettings(settings);
+        }
+    }
 
     public string LatestApplicationVersion
     {
@@ -50,11 +62,30 @@ public class SettingsService : IDisposable
         get
         {
             var settings = GetSettings();
-            return (settings.F95Username, settings.F95Password);
+            return (settings.F95Username, Decrypt(settings.F95Password));
         }
     }
 
-    public int DefaultPageSize => GetSettings().DefaultPageSize;
+    public string F95CredentialsString
+    {
+        get
+        {
+            var credentials = F95Credentials;
+            credentials.Password = $"{credentials.Password.Substring(0, 2)}{"".PadLeft(credentials.Password.Length - 2, '*')}";
+            return $"{credentials.Username} / {credentials.Password}";
+        }
+    }
+
+    public int DefaultPageSize
+    {
+        get => GetSettings().DefaultPageSize;
+        set
+        {
+            var settings = GetSettings();
+            settings.DefaultPageSize = value;
+            SaveSettings(settings);
+        }
+    }
 
     public (bool Result, string Reason) HasValidF95Credentials()
     {
@@ -77,7 +108,7 @@ public class SettingsService : IDisposable
 
         var settings = GetSettings();
         settings.F95Username = username;
-        settings.F95Password = password;
+        settings.F95Password = Encrypt(password);
         SaveSettings(settings);
 
         return (Result: true, Reason: "Success");
@@ -89,6 +120,52 @@ public class SettingsService : IDisposable
             _dataContext.Add(settings);
 
         _dataContext.SaveChanges();
+    }
+
+    private string Encrypt(string clearText)
+    {
+        var result = string.Empty;
+        string EncryptionKey = "e44244c6-1c7f-4984-9675-169e7321555f";
+        byte[] clearBytes = Encoding.Unicode.GetBytes(clearText);
+        using ( Aes encryptor = Aes.Create() )
+        {
+            Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+            encryptor.Key = pdb.GetBytes(32);
+            encryptor.IV = pdb.GetBytes(16);
+            using ( MemoryStream ms = new MemoryStream() )
+            {
+                using ( CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write) )
+                {
+                    cs.Write(clearBytes, 0, clearBytes.Length);
+                    cs.Close();
+                }
+                result = Convert.ToBase64String(ms.ToArray());
+            }
+        }
+        return result;
+    }
+
+    private string Decrypt(string cipherText)
+    {
+        var result = string.Empty;
+        string EncryptionKey = "e44244c6-1c7f-4984-9675-169e7321555f";
+        byte[] cipherBytes = Convert.FromBase64String(cipherText);
+        using ( Aes encryptor = Aes.Create() )
+        {
+            Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+            encryptor.Key = pdb.GetBytes(32);
+            encryptor.IV = pdb.GetBytes(16);
+            using ( MemoryStream ms = new MemoryStream() )
+            {
+                using ( CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write) )
+                {
+                    cs.Write(cipherBytes, 0, cipherBytes.Length);
+                    cs.Close();
+                }
+                result = Encoding.Unicode.GetString(ms.ToArray());
+            }
+        }
+        return result;
     }
 
     public void Dispose()
