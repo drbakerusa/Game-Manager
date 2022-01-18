@@ -21,8 +21,10 @@ public static class MainMenu
         var options = new List<string>
         {
             "Library",
-            "GameManager on Github",
+            "Settings",
             "Refresh Metadata from F95",
+            "Documentation",
+            $"Latest Release ({new SettingsService().LatestApplicationVersion})",
             "Quit Application"
         };
 
@@ -33,9 +35,8 @@ public static class MainMenu
             case 0: // Library
                 LibraryMenu.Show();
                 break;
-            case 1:
-                new LibraryService().StartProcess("https://github.com/drbakerusa/Game-Manager");
-                Show();
+            case 1: // Settings
+                SettingsMenu.Show();
                 break;
             case 2: // Refresh Metadata
                 try
@@ -51,11 +52,19 @@ public static class MainMenu
                 }
                 Show();
                 break;
-            case 3: // Quit Application
+            case 3: // Documentation
+                new LibraryService().StartProcess("https://github.com/drbakerusa/Game-Manager/blob/main/README.md");
+                Show();
+                break;
+            case 4: // Latest Release
+                new LibraryService().StartProcess("https://github.com/drbakerusa/Game-Manager/releases/latest");
+                Show();
+                break;
+            case 5: // Quit Application
                 Environment.Exit(0);
                 break;
             default:
-                MainMenu.Show();
+                Show();
                 break;
         }
     }

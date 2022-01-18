@@ -35,6 +35,29 @@ public static class UIElements
             Blank();
     }
 
+    public static int IntegerInput(int defaultValue)
+    {
+        var inputIsInteger = false;
+
+        while ( !inputIsInteger )
+        {
+            var input = TextInput($"Enter value ({defaultValue})");
+
+            if ( string.IsNullOrEmpty(input) )
+                break;
+            else
+            {
+                if ( int.TryParse(input, out int value) )
+                {
+                    inputIsInteger = true;
+                    return value;
+                }
+            }
+        }
+
+        return defaultValue;
+    }
+
     public static void PageTitle(string title)
     {
         PageHeader();
@@ -138,6 +161,48 @@ public static class UIElements
 
     public static string MenuOption(int index, string optionText) => $"{index,4}.     {optionText}";
 
+    public static (string Username, string Password) GetCredentials(string? existingUsername)
+    {
+        var usernamePrompt = string.IsNullOrEmpty(existingUsername) ? string.Empty : $" (blank for {existingUsername})";
+        var input = TextInput($"Enter username{usernamePrompt}");
+        var password = SecretInput("Enter password");
+
+        Console.WriteLine();
+
+        if ( string.IsNullOrEmpty(input) && !string.IsNullOrEmpty(existingUsername) )
+            return (existingUsername, password);
+        else
+            return (input, password);
+    }
+
+    public static string SecretInput(string promptMessage)
+    {
+        Normal(promptMessage);
+        var secret = string.Empty;
+        ConsoleKeyInfo keyInfo;
+
+        do
+        {
+            keyInfo = Console.ReadKey(intercept: true);
+
+            if ( keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter )
+            {
+                secret += keyInfo.KeyChar;
+                Console.Write("*");
+            }
+            else
+            {
+                if ( keyInfo.Key == ConsoleKey.Backspace && secret.Length > 0 )
+                {
+                    secret = secret.Substring(0, secret.Length - 1);
+                    Console.Write("b b");
+                }
+            }
+        } while ( keyInfo.Key != ConsoleKey.Enter );
+
+        return secret;
+    }
+
     private static int? SelectionPrompt(string message, int numberOfOptions)
     {
         var selectionMade = false;
@@ -187,48 +252,8 @@ public static class UIElements
 
         }
 
-        Blue($"F95 Game Manager {versionString}");
+        Blue($"Game Manager {versionString}");
         Divider();
-    }
-
-    public static (string Username, string Password) GetCredentials(string? existingUsername)
-    {
-        var usernamePrompt = string.IsNullOrEmpty(existingUsername) ? string.Empty : $" (blank for {existingUsername})";
-        var input = TextInput($"Enter username{usernamePrompt}");
-        var password = SecretInput("Enter password");
-
-        if ( string.IsNullOrEmpty(input) && !string.IsNullOrEmpty(existingUsername) )
-            return (existingUsername, password);
-        else
-            return (input, password);
-    }
-
-    public static string SecretInput(string promptMessage)
-    {
-        Normal(promptMessage);
-        var secret = string.Empty;
-        ConsoleKeyInfo keyInfo;
-
-        do
-        {
-            keyInfo = Console.ReadKey(intercept: true);
-
-            if ( keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter )
-            {
-                secret += keyInfo.KeyChar;
-                Console.Write("*");
-            }
-            else
-            {
-                if ( keyInfo.Key == ConsoleKey.Backspace && secret.Length > 0 )
-                {
-                    secret = secret.Substring(0, secret.Length - 1);
-                    Console.Write("b b");
-                }
-            }
-        } while ( keyInfo.Key != ConsoleKey.Enter );
-
-        return secret;
     }
 
     private static void Underline(string message) => Console.WriteLine("".PadRight(message.Length, '-'));
