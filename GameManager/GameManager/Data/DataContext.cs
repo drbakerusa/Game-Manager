@@ -5,6 +5,7 @@ public class DataContext : DbContext
     public DbSet<GameMetadata> GameMetadata => Set<GameMetadata>();
     public DbSet<LibraryGame> Library => Set<LibraryGame>();
     public DbSet<DeletedGame> DeletedGames => Set<DeletedGame>();
+    public DbSet<Settings> Settings => Set<Settings>();
 
     public string DbPath { get; set; } = string.Empty;
 
