@@ -13,10 +13,10 @@ public static class AddGameScreen
         {
             "By Thread ID",
             "By Forum URL",
-            "By Name",
-            "By Developer Name",
-            "By Prefix",
-            "By Tag",
+            "Search By Name",
+            "Search By Developer Name",
+            "Search By Prefix",
+            "Search By Tag",
             "Return to Library"
         };
 
@@ -37,6 +37,9 @@ public static class AddGameScreen
                 Show();
                 break;
             case 2: // By Name
+                var nameSearch = UIElements.TextInput("Enter search string");
+                if ( !string.IsNullOrEmpty(nameSearch) )
+                    MetadataSearchResultsScreen.Show(library.GetMetadataByGameName(nameSearch), $"Search for '{nameSearch}'");
                 Show();
                 break;
             case 3: // By Developer

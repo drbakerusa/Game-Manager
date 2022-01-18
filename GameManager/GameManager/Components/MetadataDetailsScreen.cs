@@ -6,10 +6,10 @@ public class MetadataDetailsScreen
     {
         var library = new LibraryService();
 
-        var metadata = library.GetGameMetadata(metadataId);
+        GameMetadata? metadata = library.GetGameMetadata(metadataId);
 
         if ( metadata == null )
-            MainMenu.Show();
+            AddGameScreen.Show();
         _ = metadata ?? throw new ArgumentNullException(nameof(metadata));
 
         Console.Clear();
@@ -36,22 +36,36 @@ public class MetadataDetailsScreen
         UIElements.Normal("Tags:");
         UIElements.Normal(metadata.Tags);
 
-        if ( library.GameIsInLibrary(metadataId) )
+        var options = new List<string>
         {
-            if ( UIElements.Confirm("View game in library") )
-                ViewInLibrary(metadataId);
-            else
-                AddGameScreen.Show();
-        }
-        else
+            library.GameIsInLibrary(metadataId) ? "View game in library" : "Add game to library",
+            "View F95 Page",
+            "Return to Search"
+        };
+
+        switch ( UIElements.Menu(options, showDivider: true) )
         {
-            if ( UIElements.Confirm("Add game to library") )
-            {
-                library.AddGameToLibrary(metadataId);
-                ViewInLibrary(metadataId);
-            }
-            else
+            case 0: // Add/View Game
+                if ( library.GameIsInLibrary(metadataId) )
+                {
+                    ViewInLibrary(metadataId);
+                }
+                else
+                {
+                    library.AddGameToLibrary(metadataId);
+                    ViewInLibrary(metadataId);
+                }
+                break;
+            case 1: // View on F95
+                library.BrowseGameForum(metadataId, isMetadataId: true);
+                Show(metadataId);
+                break;
+            case 2: // Return to search
                 AddGameScreen.Show();
+                break;
+            default:
+                Show(metadataId);
+                break;
         }
     }
 

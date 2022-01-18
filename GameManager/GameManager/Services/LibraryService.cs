@@ -152,10 +152,17 @@ public class LibraryService
         _data.SaveChanges();
     }
 
-    public void BrowseGameForum(int gameId)
+    public void BrowseGameForum(int gameId, bool isMetadataId = false)
     {
-        var game = GetGame(gameId);
-        var url = $"https://f95zone.to/threads/{game.MetadataId}";
+        var url = string.Empty;
+        if ( isMetadataId )
+            url = $"https://f95zone.to/threads/{gameId}";
+        else
+        {
+            var game = GetGame(gameId);
+            url = $"https://f95zone.to/threads/{game.MetadataId}";
+        }
+
         StartProcess(url);
     }
 
@@ -300,4 +307,8 @@ public class LibraryService
         game.Comments.Remove(comment);
         _data.SaveChanges();
     }
+
+    public IList<GameMetadata> GetMetadataByGameName(string name) => _data.GameMetadata.Where(g => g.Name.ToLower().Contains(name.Trim().ToLower()))
+                                                                                       .OrderBy(g => g.Name)
+                                                                                       .ToList();
 }
