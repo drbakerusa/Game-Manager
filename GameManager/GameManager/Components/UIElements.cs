@@ -18,6 +18,8 @@ public static class UIElements
 
     public static void Blank() => Console.WriteLine();
 
+    public static string ApplicationTitle => GenerateApplicationTitle();
+
     public static void Divider(bool fullwidth = true, bool includeSpace = false)
     {
         int width = 0;
@@ -69,8 +71,6 @@ public static class UIElements
 
     public static void PageTitle(string title)
     {
-        PageHeader();
-        Blank();
         Console.WriteLine(title);
         Underline(title);
         Blank();
@@ -244,24 +244,16 @@ public static class UIElements
         Console.ResetColor();
     }
 
-    private static void PageHeader()
+    public static void PageHeader()
     {
         var version = Assembly.GetExecutingAssembly().GetName().Version;
-        var versionString = string.Empty;
+        var title = GenerateApplicationTitle();
 
-        if ( version != null )
-        {
-            versionString = $"v{version.Major}.{version.Minor}.{version.Build}";
+        using ( var settings = new SettingsService() )
+            if ( settings.NewerVersionExists )
+                title += $" [{settings.LatestApplicationVersion} is available!]";
 
-            using ( var settings = new SettingsService() )
-            {
-                if ( settings.NewerVersionExists )
-                    versionString += $" [{settings.LatestApplicationVersion} is available!]";
-            }
-
-        }
-
-        Blue($"Game Manager {versionString}");
+        Blue(title);
         Divider();
     }
 
@@ -270,5 +262,14 @@ public static class UIElements
     private static int CalculateTotalPages(int numberOfItems)
         => (int) Math.Ceiling((decimal) numberOfItems / (decimal) new SettingsService().DefaultPageSize);
 
+    private static string GenerateApplicationTitle()
+    {
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        var versionString = string.Empty;
 
+        if ( version != null )
+            versionString = $"v{version.Major}.{version.Minor}.{version.Build}";
+
+        return $"Game Manager {versionString}";
+    }
 }

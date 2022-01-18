@@ -68,5 +68,6 @@ UIElements.Blank();
 UIElements.Divider();
 
 Console.Clear();
+Console.Title = UIElements.ApplicationTitle;
 
 MainMenu.Show();
