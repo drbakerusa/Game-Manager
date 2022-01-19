@@ -37,6 +37,7 @@ public class LoaderService : IDisposable
         var controlIdFound = false;
         var newControlId = string.Empty;
         var performingFullDataLoad = _settingsService.ControlId == "0";
+        var gamesLoaded = 0;
 
         if ( performingFullDataLoad )
             UIElements.Warning("Loading all metadata from F95. This will take a few minutes");
@@ -45,14 +46,12 @@ public class LoaderService : IDisposable
 
         while ( pageNumber <= totalPages && !controlIdFound )
         {
-            var games = (await GetPageAsync(pageNumber)).Content.Games;
+            var page = await GetPageAsync(pageNumber);
+            var games = page.Content.Games;
 
             if ( pageNumber == 1 )
                 newControlId = games.First().Id
                     ?? throw new NullReferenceException(nameof(newControlId));
-
-            if ( performingFullDataLoad )
-                Console.WriteLine($"Loading page {pageNumber} of {totalPages}");
 
             foreach ( var game in games )
             {
@@ -62,7 +61,12 @@ public class LoaderService : IDisposable
                     break;
                 }
                 SaveGameToDatabase(game);
+                gamesLoaded++;
             }
+
+            if ( performingFullDataLoad )
+                Console.WriteLine($"Loaded {gamesLoaded.ToString("N0")} of {page.Content.RecordCount.ToString("N0")}");
+
             pageNumber++;
         }
         _settingsService.ControlId = newControlId;
