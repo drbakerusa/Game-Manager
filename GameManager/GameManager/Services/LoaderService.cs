@@ -39,9 +39,9 @@ public class LoaderService : IDisposable
         var performingFullDataLoad = _settingsService.ControlId == "0";
 
         if ( performingFullDataLoad )
-            Console.WriteLine("Loading all metadata from F95. This will take a few minutes");
+            UIElements.Warning("Loading all metadata from F95. This will take a few minutes");
         else
-            Console.WriteLine("Getting latest updates . . .");
+            UIElements.Warning("Getting latest updates . . .");
 
         while ( pageNumber <= totalPages && !controlIdFound )
         {
@@ -113,13 +113,13 @@ public class LoaderService : IDisposable
 
     private async Task AuthenticateF95Async()
     {
-        var settings = _settingsService.GetSettings();
+        var credentials = _settingsService.F95Credentials;
 
-        if ( string.IsNullOrEmpty(settings.F95Username) )
-            throw new ArgumentNullException(nameof(settings.F95Username));
+        if ( string.IsNullOrEmpty(credentials.Username) )
+            throw new ArgumentNullException(nameof(credentials.Username));
 
-        if ( string.IsNullOrEmpty(settings.F95Password) )
-            throw new ArgumentNullException(nameof(settings.F95Password));
+        if ( string.IsNullOrEmpty(credentials.Password) )
+            throw new ArgumentNullException(nameof(credentials.Password));
 
         var testUrl = _baseUrl.WithCookies(_jar).AppendPathSegment("login/login");
 
@@ -151,14 +151,13 @@ public class LoaderService : IDisposable
                 .Where(a => a.Name == "value")
                 .FirstOrDefault()?.Value ?? string.Empty;
 
-            if ( token != string.Empty
-                 && settings is not null )
+            if ( token != string.Empty )
             {
                 var formContents = new[]
                 {
-                        new KeyValuePair<string, string>("login", settings.F95Username ?? throw new NullReferenceException(nameof(settings.F95Username))),
+                        new KeyValuePair<string, string>("login", credentials.Username ?? throw new NullReferenceException(nameof(credentials.Username))),
                         new KeyValuePair<string, string>("url",""),
-                        new KeyValuePair<string, string>("password", settings.F95Password ?? throw new NullReferenceException(nameof(settings.F95Password))),
+                        new KeyValuePair<string, string>("password", credentials.Password ?? throw new NullReferenceException(nameof(credentials.Password))),
                         new KeyValuePair<string, string>("password_confirm",""),
                         new KeyValuePair<string, string>("additional_security",""),
                         new KeyValuePair<string, string>("_xfRedirect",_baseUrl),

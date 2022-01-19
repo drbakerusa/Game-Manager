@@ -48,12 +48,12 @@ public class SettingsService : IDisposable
 
     public string ControlId
     {
-        get => GetSettings().MetadataUpdateControlId;
+        get => string.IsNullOrEmpty(GetSettings().MetadataUpdateControlId) ? "0" : GetSettings().MetadataUpdateControlId;
         set
         {
-            var controls = GetSettings();
-            controls.MetadataUpdateControlId = value;
-            SaveSettings(controls);
+            var settings = GetSettings();
+            settings.MetadataUpdateControlId = value;
+            SaveSettings(settings);
         }
     }
 
