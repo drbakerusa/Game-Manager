@@ -20,11 +20,11 @@ public static class LibraryMenu
 
         var options = new List<string>
         {
+            $"Launch Game ({library.ReadyToPlayGames.Count()})",
             "Add Game",
             "Check for Updates",
             $"Games with Updates ({library.NumberOfUpdatesAvailable})",
             $"Recently Played ({library.RecentlyPlayedGames.Count()})",
-            $"Ready to Play ({library.ReadyToPlayGames.Count()})",
             $"Never Played ({library.GamesNeverPlayed.Count()})",
             $"Automatic Updates Disabled ({library.GamesManualUpdateCheck.Count()})",
             "By Name",
@@ -36,34 +36,34 @@ public static class LibraryMenu
 
         switch ( selection )
         {
-            case 0:
-                AddGameScreen.Show();
-                break;
-            case 1:
-                UIElements.YellowHighlight("Checking for updates");
-                library.CheckLibraryForUpdates();
+            case 0: // Launch Game
+                LibrarySearchResultsScreen.Show(library.ReadyToPlayGames, "Ready to Play", launchInsteadOfDetails: true);
                 Show();
                 break;
-            case 2:
-                LibraryDisplayScreen.Show(library.GamesWithUpdates, "Games with Updates");
+            case 1: // Add Game
+                AddGameScreen.Show();
                 break;
-            case 3:
-                LibraryDisplayScreen.Show(library.RecentlyPlayedGames, "Recently Played");
+            case 2: // Check for Updates
+                library.CheckLibraryForUpdates(loadMetadata: true);
+                Show();
                 break;
-            case 4:
-                LibraryDisplayScreen.Show(library.ReadyToPlayGames, "Ready to Play");
+            case 3: // Games with Updates
+                LibrarySearchResultsScreen.Show(library.GamesWithUpdates, "Games with Updates");
+                break;
+            case 4: // Recently Played
+                LibrarySearchResultsScreen.Show(library.RecentlyPlayedGames, "Recently Played");
                 break;
             case 5:
-                LibraryDisplayScreen.Show(library.GamesNeverPlayed, "Games Never Played");
+                LibrarySearchResultsScreen.Show(library.GamesNeverPlayed, "Games Never Played");
                 break;
             case 6:
-                LibraryDisplayScreen.Show(library.GamesManualUpdateCheck, "Games with Automatic Updating Disabled");
+                LibrarySearchResultsScreen.Show(library.GamesManualUpdateCheck, "Games with Automatic Updating Disabled");
                 break;
             case 7:
-                LibraryDisplayScreen.Show(library.GamesAlphabetical, "Library by Name");
+                LibrarySearchResultsScreen.Show(library.GamesAlphabetical, "Library by Name");
                 break;
             case 8:
-                LibraryDisplayScreen.Show(library.GamesRecentlyUpdated, "Recently Added/Upgraded Games");
+                LibrarySearchResultsScreen.Show(library.GamesRecentlyUpdated, "Recently Added/Upgraded Games");
                 break;
             case 9:
                 MainMenu.Show();

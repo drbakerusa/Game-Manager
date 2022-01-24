@@ -116,8 +116,7 @@ public class LibraryService
     {
         _ = game ?? throw new ArgumentNullException(nameof(game));
 
-        if ( loadMetadata )
-            _loader.LoadMetadata().Wait();
+
 
         var metadata = GetGameMetadata(game.MetadataId);
 
@@ -140,8 +139,11 @@ public class LibraryService
         }
     }
 
-    public void CheckLibraryForUpdates()
+    public void CheckLibraryForUpdates(bool loadMetadata = false)
     {
+        if ( loadMetadata )
+            _loader.LoadMetadata().Wait();
+
         foreach ( var game in _data.Library.Where(g => !g.ManualUpdatesOnly) )
         {
             CheckGameForUpdates(game);

@@ -72,7 +72,7 @@ public static class UIElements
 
     public static void PageTitle(string title)
     {
-        Console.WriteLine(title);
+        Blue(title);
         Underline(title);
         Blank();
     }
@@ -101,47 +101,56 @@ public static class UIElements
         var selectionMade = false;
         var selectedItem = string.Empty;
         var currentPage = 1;
-        var totalPages = CalculateTotalPages(options.Count);
+        var totalPages = CalculateTotalPages(options.Count) == 0 ? 1 : CalculateTotalPages(options.Count);
 
         while ( !selectionMade )
         {
             Console.Clear();
-            PageHeader();
-            Blank();
 
             var optionsPage = new List<string>();
             var message = $"Page {currentPage} of {totalPages}";
-            Normal(listTitle);
-            Normal(message);
-            Underline(message);
-            Blank();
+            PageTitle(listTitle);
 
-            optionsPage = options.Skip((currentPage - 1) * pageSize)
+            if ( options.Any() )
+            {
+                Normal(message);
+                Underline(message);
+                Blank();
+
+                optionsPage = options.Skip((currentPage - 1) * pageSize)
                                  .Take(pageSize)
                                  .ToList();
-            if ( currentPage != 1 )
-                optionsPage.Add("Previous Page");
-            if ( currentPage != totalPages )
-                optionsPage.Add("Next Page");
+                if ( currentPage != 1 )
+                    optionsPage.Add("Previous Page");
+                if ( currentPage != totalPages )
+                    optionsPage.Add("Next Page");
 
-            foreach ( var option in optionsPage )
-            {
-                Normal(MenuOption(index: (optionsPage.IndexOf(option) + 1), optionText: option));
+                foreach ( var option in optionsPage )
+                {
+                    Normal(MenuOption(index: (optionsPage.IndexOf(option) + 1), optionText: option));
+                }
+
+                var selection = SelectionPrompt($"Make a selection ({promptCancelMessage})", numberOfOptions: options.Count);
+
+                if ( selection == null )
+                    return null;
+
+                selectedItem = optionsPage[(int) selection - 1];
+
+                if ( selectedItem == "Previous Page" )
+                    currentPage--;
+                else if ( selectedItem == "Next Page" )
+                    currentPage++;
+                else
+                    selectionMade = true;
             }
-
-            var selection = SelectionPrompt($"Make a selection ({promptCancelMessage})", numberOfOptions: options.Count);
-
-            if ( selection == null )
-                return null;
-
-            selectedItem = optionsPage[(int) selection - 1];
-
-            if ( selectedItem == "Previous Page" )
-                currentPage--;
-            else if ( selectedItem == "Next Page" )
-                currentPage++;
             else
-                selectionMade = true;
+            {
+                Warning("None found");
+                Divider(fullwidth: false, includeSpace: true);
+                TextInput("Enter to continue");
+                return null;
+            }
         }
 
         return options.IndexOf(selectedItem);
