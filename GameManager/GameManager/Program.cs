@@ -28,6 +28,9 @@ using ( var settingsService = new SettingsService() )
         hasValidCredentials = result.Result;
     }
 
+    if ( settingsService.RecentThresholdDays == 0 )
+        settingsService.RecentThresholdDays = new Settings().RecentThresholdDays;
+
     UIElements.Success("OK!");
     UIElements.Blank();
 }

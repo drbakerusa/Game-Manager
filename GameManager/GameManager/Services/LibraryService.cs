@@ -6,11 +6,11 @@ namespace GameManager.Services;
 public class LibraryService
 {
     DataContext _data;
-    Settings _settings;
+    SettingsService _settings;
     public LibraryService()
     {
         _data = new DataContext();
-        _settings = new SettingsService().GetSettings();
+        _settings = new SettingsService();
     }
 
     public bool GameUpdatesAreAvailable => _data.Library.Any(g => g.HasUpgradeAvailable);
@@ -20,7 +20,8 @@ public class LibraryService
     public IEnumerable<LibraryGame> GamesAlphabetical => _data.Library.OrderBy(g => g.Name)
                                                                       .ToList();
 
-    public IEnumerable<LibraryGame> GamesRecentlyUpdated => _data.Library.OrderByDescending(g => g.WhenUpdated)
+    public IEnumerable<LibraryGame> GamesRecentlyUpdated => _data.Library.Where(g => g.WhenUpdated >= _settings.RecentThreshold)
+                                                                         .OrderByDescending(g => g.WhenUpdated)
                                                                          .ToList();
 
     public IEnumerable<LibraryGame> GamesNeverPlayed => _data.Library.Where(g => g.LaunchCount == 0)
@@ -37,7 +38,7 @@ public class LibraryService
                                                                      .OrderByDescending(g => g.WhenUpgradeDiscovered)
                                                                      .ToList();
 
-    public IEnumerable<LibraryGame> RecentlyPlayedGames => _data.Library.Where(g => g.WhenLastLaunched != null)
+    public IEnumerable<LibraryGame> RecentlyPlayedGames => _data.Library.Where(g => g.WhenLastLaunched >= _settings.RecentThreshold)
                                                                         .OrderByDescending(g => g.WhenLastLaunched)
                                                                         .ToList();
 
@@ -85,7 +86,7 @@ public class LibraryService
             Version = metadata.Version,
             Tags = metadata.Tags,
             Prefixes = metadata.Prefixes,
-            ManualUpdatesOnly = !_settings.AutomaticallyCheckForGameUpdates
+            ManualUpdatesOnly = !_settings.CheckForUpdatesAutomatically
         };
 
         var deletedGame = _data.DeletedGames.Find(metadataId);

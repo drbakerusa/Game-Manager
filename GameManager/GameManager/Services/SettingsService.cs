@@ -87,6 +87,19 @@ public class SettingsService : IDisposable
         }
     }
 
+    public int RecentThresholdDays
+    {
+        get => GetSettings().RecentThresholdDays;
+        set
+        {
+            var settings = GetSettings();
+            settings.RecentThresholdDays = value;
+            SaveSettings(settings);
+        }
+    }
+
+    public DateTime RecentThreshold => DateTime.Today.AddDays(-1 * RecentThresholdDays);
+
     public (bool Result, string Reason) HasValidF95Credentials()
     {
         var settings = GetSettings();

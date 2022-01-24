@@ -15,6 +15,7 @@
                 $"F95 Credentials => {settingsService.F95CredentialsString}",
                 $"Default Page Size => {settings.DefaultPageSize}",
                 $"Allow Automatic Game Update Checks by Default => {UIElements.ConvertBoolToYesNo(settings.AutomaticallyCheckForGameUpdates)}",
+                $"Recent Threshold => {settings.RecentThresholdDays} days",
                 "Main Menu"
             };
 
@@ -35,7 +36,11 @@
                     settingsService.CheckForUpdatesAutomatically = UIElements.Confirm("Allow Automatic Game Update Checks by Default", settingsService.CheckForUpdatesAutomatically);
                     Show();
                     break;
-                case 3: // Main Menu
+                case 3: // Recent Threshold
+                    settingsService.RecentThresholdDays = UIElements.IntegerInput(settings.RecentThresholdDays) ?? new Settings().RecentThresholdDays;
+                    Show();
+                    break;
+                case 4: // Main Menu
                     MainMenu.Show();
                     break;
                 default:

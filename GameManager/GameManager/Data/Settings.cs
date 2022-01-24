@@ -10,4 +10,5 @@ public class Settings
     public string MetadataUpdateControlId { get; set; } = "0";
     public string LatestApplicationVersion { get; set; } = string.Empty;
     public bool NewerVersionExists { get; set; }
+    public int RecentThresholdDays { get; set; } = 7;
 }
