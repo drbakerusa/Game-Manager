@@ -222,10 +222,16 @@ public static class UIElements
         return secret;
     }
 
-    public static void ShowSuccessMessage(string message)
+    public static void ShowSuccessMessage(string message, int timeout = 2)
     {
         UIElements.Success(message);
-        Pause();
+        Pause(timeout);
+    }
+
+    public static void ShowErrorMessage(string message, int timeout = 2)
+    {
+        UIElements.Error(message);
+        Pause(timeout);
     }
 
     public static void Pause(int sec = 2)

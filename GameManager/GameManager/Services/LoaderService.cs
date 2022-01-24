@@ -30,46 +30,56 @@ public class LoaderService : IDisposable
 
     public async Task LoadMetadata()
     {
-        await AuthenticateF95Async();
-
-        var pageNumber = 1;
-        var totalPages = await GetTotalPagesAsync();
-        var controlIdFound = false;
-        var newControlId = string.Empty;
-        var performingFullDataLoad = _settingsService.ControlId == "0";
-        var gamesLoaded = 0;
-
-        if ( performingFullDataLoad )
-            UIElements.Warning("Loading all metadata from F95. This will take a few minutes");
-        else
-            UIElements.Warning("Getting latest updates . . .");
-
-        while ( pageNumber <= totalPages && !controlIdFound )
+        try
         {
-            var page = await GetPageAsync(pageNumber);
-            var games = page.Content.Games;
+            await AuthenticateF95Async();
 
-            if ( pageNumber == 1 )
-                newControlId = games.First().Id
-                    ?? throw new NullReferenceException(nameof(newControlId));
-
-            foreach ( var game in games )
-            {
-                if ( game.Id == _settingsService.ControlId )
-                {
-                    controlIdFound = true;
-                    break;
-                }
-                SaveGameToDatabase(game);
-                gamesLoaded++;
-            }
+            var pageNumber = 1;
+            var totalPages = await GetTotalPagesAsync();
+            var controlIdFound = false;
+            var newControlId = string.Empty;
+            var performingFullDataLoad = _settingsService.ControlId == "0";
+            var gamesLoaded = 0;
 
             if ( performingFullDataLoad )
-                Console.WriteLine($"Loaded {gamesLoaded.ToString("N0")} of {page.Content.RecordCount.ToString("N0")}");
+                UIElements.Warning("Loading all metadata from F95. This will take a few minutes");
+            else
+                UIElements.Warning("Getting latest updates . . .");
 
-            pageNumber++;
+            while ( pageNumber <= totalPages && !controlIdFound )
+            {
+                var page = await GetPageAsync(pageNumber);
+                var games = page.Content.Games;
+
+                if ( pageNumber == 1 )
+                    newControlId = games.First().Id
+                        ?? throw new NullReferenceException(nameof(newControlId));
+
+                foreach ( var game in games )
+                {
+                    if ( game.Id == _settingsService.ControlId )
+                    {
+                        controlIdFound = true;
+                        break;
+                    }
+                    SaveGameToDatabase(game);
+                    gamesLoaded++;
+                }
+
+                if ( performingFullDataLoad )
+                    Console.WriteLine($"Loaded {gamesLoaded.ToString("N0")} of {page.Content.RecordCount.ToString("N0")}");
+
+                pageNumber++;
+            }
+            _settingsService.ControlId = newControlId;
         }
-        _settingsService.ControlId = newControlId;
+        catch ( FlurlHttpException e )
+        {
+            if ( e.StatusCode is not null && e.StatusCode == 503 )
+                UIElements.ShowErrorMessage("F95 is unavailable at this time. Try again later", timeout: 5);
+            else
+                throw new Exception("HTTP error", e);
+        }
     }
 
     private void SaveGameToDatabase(Game game)
