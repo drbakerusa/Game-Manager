@@ -42,9 +42,15 @@ public static class MainMenu
                 try
                 {
                     if ( UIElements.Confirm("Get latest updates only", defaultResponse: false) )
-                        await loader.LoadMetadata();
+                    {
+                        loader.LoadMetadata().Wait();
+                        Show();
+                    }
                     else if ( UIElements.Confirm("Refresh all metadata", defaultResponse: false) )
-                        await loader.RefreshAllMetadata();
+                    {
+                        loader.RefreshAllMetadata().Wait();
+                        Show();
+                    }
                 }
                 catch ( Exception e )
                 {
