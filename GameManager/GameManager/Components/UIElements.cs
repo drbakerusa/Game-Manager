@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 
 namespace GameManager.Components;
 
@@ -210,6 +211,25 @@ public static class UIElements
         } while ( keyInfo.Key != ConsoleKey.Enter );
 
         return secret;
+    }
+
+    public static void ShowSuccessMessage(string message)
+    {
+        UIElements.Success(message);
+        Pause();
+    }
+
+    public static void Pause(int sec = 2)
+    {
+        Console.WriteLine();
+        var pauseProc = Process.Start(
+            new ProcessStartInfo()
+            {
+                FileName = "cmd",
+                Arguments = "/C TIMEOUT /t " + sec + " /nobreak > NUL",
+                UseShellExecute = false
+            });
+        pauseProc?.WaitForExit();
     }
 
     private static int? SelectionPrompt(string message, int numberOfOptions)

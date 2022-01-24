@@ -7,10 +7,13 @@ public class LibraryService
 {
     DataContext _data;
     SettingsService _settings;
+    LoaderService _loader;
+
     public LibraryService()
     {
         _data = new DataContext();
         _settings = new SettingsService();
+        _loader = new LoaderService();
     }
 
     public bool GameUpdatesAreAvailable => _data.Library.Any(g => g.HasUpgradeAvailable);
@@ -46,6 +49,10 @@ public class LibraryService
                                                                      .OrderByDescending(g => g.WhenLastLaunched)
                                                                      .ThenByDescending(g => g.Name)
                                                                      .ToList();
+
+    public IEnumerable<GameMetadata> RecentlyUpdatedMetadata => _data.GameMetadata.Where(m => m.WhenRefreshed >= _settings.RecentThreshold)
+                                                                                  .OrderByDescending(m => m.WhenRefreshed)
+                                                                                  .ToList();
 
     public bool GamePreviouslyDeleted(int metadataId) => _data.DeletedGames.Find(metadataId) != null;
 
@@ -103,11 +110,14 @@ public class LibraryService
 
     public LibraryGame GetGame(int gameId) => _data.Library.Find(gameId) ?? throw new NullReferenceException();
 
-    public void CheckGameForUpdates(int gameId) => CheckGameForUpdates(GetGame(gameId));
+    public void CheckGameForUpdates(int gameId, bool loadMetadata = false, bool showSuccessMessage = false) => CheckGameForUpdates(GetGame(gameId), loadMetadata, showSuccessMessage);
 
-    public void CheckGameForUpdates(LibraryGame game)
+    public void CheckGameForUpdates(LibraryGame game, bool loadMetadata = false, bool showSuccessMessage = false)
     {
         _ = game ?? throw new ArgumentNullException(nameof(game));
+
+        if ( loadMetadata )
+            _loader.LoadMetadata().Wait();
 
         var metadata = GetGameMetadata(game.MetadataId);
 
@@ -122,6 +132,11 @@ public class LibraryService
                 game.HasUpgradeAvailable = true;
                 _data.SaveChanges();
             }
+        }
+        else
+        {
+            if ( showSuccessMessage )
+                UIElements.ShowSuccessMessage("Game is Current");
         }
     }
 

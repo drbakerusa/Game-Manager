@@ -94,7 +94,7 @@ public class GameDetailsScreen
                 }
                 else
                 {
-                    library.CheckGameForUpdates(gameId);
+                    library.CheckGameForUpdates(gameId, loadMetadata: true, showSuccessMessage: true);
                 }
                 Show(gameId);
                 break;
