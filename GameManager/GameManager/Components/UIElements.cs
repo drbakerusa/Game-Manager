@@ -171,9 +171,19 @@ public static class UIElements
         var response = Console.ReadLine()?.ToLower();
 
         if ( defaultResponse == true )
-            return string.IsNullOrEmpty(response) || response == "y";
+        {
+            if ( string.IsNullOrEmpty(response) )
+                return true;
+            else
+                return response == "y";
+        }
         else
-            return !string.IsNullOrEmpty(response) || response == "y";
+        {
+            if ( string.IsNullOrEmpty(response) )
+                return false;
+            else
+                return response == "y";
+        }
     }
 
     public static string ConvertBoolToYesNo(bool value) => value ? "yes" : "no";
